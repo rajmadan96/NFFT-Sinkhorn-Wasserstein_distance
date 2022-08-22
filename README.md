@@ -23,6 +23,6 @@ This paper also comprehensively explains the NFFT-Sinkhorn (Approximation of Was
 | File/Folder   | Purpose                                                                                   |
 | ------------- |-------------------------------------------------------------------------------------------|   
 | src           | Sinkhorn algorithm from Section 3.3, and NFFT-accelerated  from Section 4.1 of [[1]](#1) |
-| Graphs and images        |  Graphs from Numerical experiments and images used in the paper.               |
+| Graphs and images        |  Graphs from the numerical experiments and the images used in the paper.               |
 | Experiments | Experiments scripts using synthetic data and real data       |
 
