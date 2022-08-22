@@ -11,7 +11,7 @@ The "NFFT3.jl" package has be installed. For more details refer to  [https://www
 
 ### Reference
 
-When you are using this code, please cite the paper
+When you are using this code, please cite the paper.
 
 <a id="1">[1]</a> Rajmadan Lakshmanan, Alois Pichler, and  Daniel Potts. (2022). [Nonequispaced Fast Fourier Transform Boost for the Sinkhorn Algorithm](https://arxiv.org/abs/2201.07524). 
 
