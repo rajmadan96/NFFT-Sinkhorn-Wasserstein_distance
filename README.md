@@ -3,7 +3,7 @@ This contribution features an accelerated computation of the Wasserstein transpo
 
 ### Prerequisites
 
-The "NFFT3.jl" package has be installed. For more details refer to  [https://www-user.tu-chemnitz.de](https://www-user.tu-chemnitz.de/~potts/nfft/) and https://github.com/NFFT/NFFT3.jl. 
+The "NFFT3.jl" package has be installed. For more details, please refer to  [https://www-user.tu-chemnitz.de](https://www-user.tu-chemnitz.de/~potts/nfft/) and https://github.com/NFFT/NFFT3.jl. 
 
 
 **NOTE: The "NFFT3.jl" package should be in the same parent directory.**
