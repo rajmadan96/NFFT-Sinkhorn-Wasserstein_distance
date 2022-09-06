@@ -1,5 +1,5 @@
 """
-	NFFT accelerated Sinkhorn 2D
+	NFFT accelerated Sinkhorn 1D
 	created: 2021, November
 	author©: Alois Pichler, Rajmadan Lakshmanan
 """
