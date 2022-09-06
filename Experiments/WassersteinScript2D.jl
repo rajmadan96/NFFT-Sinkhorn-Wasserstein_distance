@@ -4,10 +4,7 @@
 	author©: Alois Pichler
 """
 
-using Test
-using OptimalTransport
-using Tulip
-using Clp
+using Test,Distributions
 #include("Wasserstein.jl")
 #include("SinkhornFFT.jl")
 #include("SinkhornFFT2D.jl")
