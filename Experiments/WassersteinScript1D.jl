@@ -5,7 +5,7 @@
 """
 
 using Test, Distributions
-include("Wasserstein.jl"); include("SinkhornNFFT1D.jl")
+include("/HOME1/users/personal/lraj/Downloads/github_NFFT/Wasserstein.jl"); #include("SinkhornFFT.jl")
 
 printstyled("\n\t══════════ Test Wasserstein.jl ══════════\n"; bold= true, color= 7)
 samplesFrom= Normal(.5, 1.0)		# Uniform(-1, 1), Normal(0.5, 1.), Exponential(.3)
@@ -24,10 +24,11 @@ s2= rand(samplesFrom, n2); p2= fill(1/n2, n2)
 
 @testset begin
 	λ= 1.; rWasserstein= 2.
+	#@show A= Wasserstein(p1, p2, distFunction(s1, s2); rWasserstein= rWasserstein)
 	@time SS= Sinkhorn(p1, p2, distFunction(s1, s2); rWasserstein= rWasserstein, λ= λ)
-	@show "pre-allocation: ", B1.distSinkhorn, B1.distSinkhornUB, B1.count
+	@show "pre-allocation: ", SS.distSinkhorn, SS.distSinkhornUB, SS.count
 	@time SF= SinkhornNFFT1D(p1, p2, s1, s2; rWasserstein= rWasserstein, λ= λ)
-	@test SS.distSinkhorn ≤ A.distance^rWasserstein ≤ SS.distSinkhornUB
+	#@test SS.distSinkhorn ≤ A.distance^rWasserstein ≤ SS.distSinkhornUB
 	@show "Sinkhorn NFFT: ", SF.distSinkhorn, SF.distSinkhornUB, SF.count
 	@test SS.distSinkhorn ≈ SF.distSinkhorn atol= 1e-1
 end
