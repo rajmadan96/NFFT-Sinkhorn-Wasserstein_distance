@@ -1,5 +1,5 @@
 """
-	Wasserstein distances
+	Sinkhorn approximation
 	created: 2021, May
 	author©: Alois Pichler
 """
