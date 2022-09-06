@@ -1,7 +1,7 @@
 """
 	NFFT accelerated Sinkhorn 2D
 	created: 2021, November
-	author©: Rajmadan Lakshmanan
+	author©: Alois Pichler, Rajmadan Lakshmanan
 """
 
 using NFFT3
@@ -13,7 +13,7 @@ using NFFT3
 
 
 """
-	SinkhornNFFT1Dsinkhorn(
+	SinkhornNFFT1D(
         p1, p2, s1,s2,rWasserstein, λ)
 
 Construct an NFFT (1D) Sinkhorn algorithm for computing an entropically regularized Wasserstein distance.
