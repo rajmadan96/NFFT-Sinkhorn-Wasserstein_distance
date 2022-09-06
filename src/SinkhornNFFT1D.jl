@@ -5,6 +5,7 @@
 """
 
 using NFFT3
+using LinearAlgebra
 #include("NFFT/NFCT.jl")
 #include("NFFT/NFFT.jl")
 #include("NFFT/NFFT3.jl")
