@@ -5,8 +5,8 @@
 """
 
 using Test, Distributions
-include("Wasserstein.jl"); include("SinkhornFFT.jl")
-y
+include("Wasserstein.jl"); include("SinkhornNFFT1D.jl")
+
 printstyled("\n\t══════════ Test Wasserstein.jl ══════════\n"; bold= true, color= 7)
 samplesFrom= Normal(.5, 1.0)		# Uniform(-1, 1), Normal(0.5, 1.), Exponential(.3)
 @show n1= 1000
@@ -28,6 +28,6 @@ s2= rand(samplesFrom, n2); p2= fill(1/n2, n2)
 	@show "pre-allocation: ", B1.distSinkhorn, B1.distSinkhornUB, B1.count
 	@time SF= SinkhornNFFT1D(p1, p2, s1, s2; rWasserstein= rWasserstein, λ= λ)
 	@test SS.distSinkhorn ≤ A.distance^rWasserstein ≤ SS.distSinkhornUB
-	@show "Sinkhorn FFT: ", SF.distSinkhorn, SF.distSinkhornUB, SF.count
+	@show "Sinkhorn NFFT: ", SF.distSinkhorn, SF.distSinkhornUB, SF.count
 	@test SS.distSinkhorn ≈ SF.distSinkhorn atol= 1e-1
 end
