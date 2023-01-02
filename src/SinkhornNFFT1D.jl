@@ -120,9 +120,9 @@ function log_SinkhornNFFT1D(p1::Vector{Float64}, p2::Vector{Float64}, S1, S2; rW
 		count += 1; 
 		if count % 10 == 0
 		err_βr=
-			 norm(real((plan1.f).* βr)- real(p1),2) #/ max(maximum(abs.(real(βr))), maximum(abs.(real(βr_old))), 1)
+			 norm(real((plan1.f).* exp.(λβr))- real(p1),2) #/ max(maximum(abs.(real(βr))), maximum(abs.(real(βr_old))), 1)
 		 err_γc=
-			 norm(real((plan2.f).*γc)- real(p2),2) #/ max(maximum(abs.(real(γc))), maximum(abs.(real(γc_old))), 1)
+			 norm(real((plan2.f).*exp.(λγc))- real(p2),2) #/ max(maximum(abs.(real(γc))), maximum(abs.(real(γc_old))), 1)
 		 if verbose
 			 println("Iteration $count, err = ",  (err_βr+ err_γc))
 		 end
