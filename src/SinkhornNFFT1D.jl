@@ -24,7 +24,7 @@ Construct an NFFT (1D) Sinkhorn algorithm for computing an entropically regulari
 
 #	│	Sinkhorn-Knopp iteration algorithm, (1D) NFFT
 #	╰────────────────────────────────────────────────────
-function SinkhornNFFT1D(p1::Vector{Float64}, p2::Vector{Float64}, S1, S2; rWasserstein::Float64= 1., λ::Float64= 1.)
+function SinkhornNFFT1D(p1::Vector{Float64}, p2::Vector{Float64}, S1, S2; rWasserstein::Float64= 1., λ::Float64= 1.,tol=1e-5,max_iter=1000,verbose=false)
 	#	│	prepare NFFT and create a Julia plan-object
 	#	╰────────────────────────────────────────────────────
 	if length(S1)==length(p1) && length(S2)==length(p2)	# one dimension
@@ -46,8 +46,8 @@ function SinkhornNFFT1D(p1::Vector{Float64}, p2::Vector{Float64}, S1, S2; rWasse
 	#	╰────────────────────────────────────────────────────
 	ontoSimplex!(p1); βr= Vector{ComplexF64}(undef, length(p1))
 	ontoSimplex!(p2); γc= ones(ComplexF64, length(p2))		# guess a starting value
-	count= 0; tmpS= Vector{Float64}(undef, length(p1)); tmp0= -Inf; tmp1= -floatmax()
-	while tmp0 < tmp1 && count < 1000  # Sinkhorn iteration
+	count= 0; tmpS= Vector{Float64}(undef, length(p1)); 
+	while true  # Sinkhorn iteration
 		γc= γc./ (p2'*γc)		# rescale
 		@. γc= complex(real(γc), 0.)
 		tmp= reinterpret(Float64, γc)
@@ -58,8 +58,82 @@ function SinkhornNFFT1D(p1::Vector{Float64}, p2::Vector{Float64}, S1, S2; rWasse
 		NFFT3.trafo(plan2)
 		tmpS= plan2.f
 		γc= p2./ tmpS			# vector operation
-		count += 1; tmp0, tmp1= tmp1, real(1+p1'*replace!(log.(βr),-Inf=>0) + p2'*replace!(log.(γc),-Inf=>0)- tmpS'* γc) # replaced -Inf with 0 to avoid NaN when computing p1'*log.(βr) and p2'*log.(γc)
-	end
-	return (distSinkhorn= tmp1/ λ, distSinkhornUB= (tmp1-p1'*replace!(log.(p1),-Inf=>0)-p2'*replace!(log.(p2),-Inf=>0))/ λ, count= count)
+		count += 1; 
+		if count % 10 == 0
+		err_βr=
+			 norm(real((plan1.f).* βr)- real(p1),2) #/ max(maximum(abs.(real(βr))), maximum(abs.(real(βr_old))), 1)
+		 err_γc=
+			 norm(real((plan2.f).*γc)- real(p2),2) #/ max(maximum(abs.(real(γc))), maximum(abs.(real(γc_old))), 1)
+		 if verbose
+			 println("Iteration $count, err = ",  (err_βr+ err_γc))
+		 end
+		 if ((err_βr+ err_γc) < tol) || count > max_iter
+			 break
+		 end
+		end 
+	 
+	end 
+	tmp=1+p1'*replace!(log.(βr),-Inf=>0) + p2'*replace!(log.(γc),-Inf=>0)- tmpS'* γc #replaced -Inf with 0 to avoid NaN when computing p1'*log.(βr) and p2'*log.(γc)
+	return (distSinkhorn= tmp/ λ, distSinkhornUB= (tmp-p1'*replace!(log.(p1),-Inf=>0)-p2'*replace!(log.(p2),-Inf=>0))/ λ, count= count)
 
 end
+	
+	
+	
+#	│	Sinkhorn-Knopp iteration algorithm (log-domain), (1D) NFFT
+#	╰────────────────────────────────────────────────────
+function log_SinkhornNFFT1D(p1::Vector{Float64}, p2::Vector{Float64}, S1, S2; rWasserstein::Float64= 1., λ::Float64= 1.,tol=1e-5,max_iter=1000,verbose=false)
+	#	│	prepare NFFT and create a Julia plan-object
+	#	╰────────────────────────────────────────────────────
+	if length(S1)==length(p1) && length(S2)==length(p2)	# one dimension
+		p= 8; m= p; n= 256; flags= 0
+		eps_I= p/ n; eps_B= max(1/ 16, p/ n); nn= 2 * n
+		reScale= (0.25- eps_B/ 2)/ max(1, maximum(abs.(S1)), maximum(abs.(S2)))
+		if rWasserstein == 1
+			kernel= "laplacian_rbf"; kScale= reScale/ λ				#	exp(-λ d)
+		elseif rWasserstein == 2
+			kernel= "gaussian";		 kScale= reScale/ sqrt(λ)		#	exp(-λ d^2)
+		end
+		plan1 = NFFT3.FASTSUM(1, length(S2), length(S1), n, p, kernel, kScale, eps_I, eps_B, nn, m)
+		plan2 = NFFT3.FASTSUM(1, length(S1), length(S2), n, p, kernel, kScale, eps_I, eps_B, nn, m)
+		plan1.x = S2* reScale; plan1.y = S1* reScale
+		plan2.x = S1* reScale; plan2.y = S2* reScale
+	end
+
+	#	│	iterate Sinkhorn
+	#	╰────────────────────────────────────────────────────
+	ontoSimplex!(p1);βr= zeros(ComplexF64, length(p1))
+	ontoSimplex!(p2); γc= zeros(ComplexF64, length(p2))		# guess a starting value
+	count= 0; tmpS= Vector{Float64}(undef, length(p1)); 
+	while true  # Sinkhorn iteration
+		γc= exp.(λ*γc)		# rescale
+		@. γc= complex(real(γc), 0.)
+		tmp= reinterpret(Float64, γc)
+		tmp[2:2:end].= 0.0		# force imaginary part zero
+		plan1.alpha = γc;
+		NFFT3.trafo(plan1)		# fast summation
+		βr= (log.(p1).- log.(plan1.f))/λ
+		plan2.alpha= exp.(λ*βr)		# vector operation
+		NFFT3.trafo(plan2)
+		tmpS= plan2.f
+		γc= (log.(p2).- log.(tmpS))/λ			# vector operation		
+		count += 1; 
+		if count % 10 == 0
+		err_βr=
+			 norm(real((plan1.f).* βr)- real(p1),2) #/ max(maximum(abs.(real(βr))), maximum(abs.(real(βr_old))), 1)
+		 err_γc=
+			 norm(real((plan2.f).*γc)- real(p2),2) #/ max(maximum(abs.(real(γc))), maximum(abs.(real(γc_old))), 1)
+		 if verbose
+			 println("Iteration $count, err = ",  (err_βr+ err_γc))
+		 end
+		 if ((err_βr+ err_γc) < tol) || count > max_iter
+			 break
+		 end
+		end 
+	 
+	end 
+	
+	return (f=βr,g=γc, count= count)
+
+end
+	
