@@ -13,7 +13,7 @@ The "NFFT3.jl" package has be installed. For more details, please refer to  [htt
 
 When you are using this code, please cite the paper.
 
-<a id="1">[1]</a> Rajmadan Lakshmanan, Alois Pichler, and  Daniel Potts. (2022). [Nonequispaced Fast Fourier Transform Boost for the Sinkhorn Algorithm](https://arxiv.org/abs/2201.07524). 
+<a id="1">[1]</a> Rajmadan Lakshmanan, Alois Pichler, and  Daniel Potts. (2022). [Nonequispaced Fast Fourier Transform Boost for the Sinkhorn Algorithm](https://epub.oeaw.ac.at/?arp=0x003e223f). 
 
 This paper also comprehensively explains the NFFT-Sinkhorn (Approximation of Wasserstein distance) algorithm.
 
